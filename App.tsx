@@ -314,7 +314,7 @@ const Home = () => {
       </section>
 
       <footer className="py-16 px-6 text-center text-slate-700 text-[10px] tracking-[0.4em] uppercase font-mono border-t border-slate-900">
-        <p>&copy; {new Date().getFullYear()} Easha Fernandes // Backend & GenAI Architect</p>
+        <p>&copy; {new Date().getFullYear()} Easha Fernandes</p>
       </footer>
     </div>
   );
