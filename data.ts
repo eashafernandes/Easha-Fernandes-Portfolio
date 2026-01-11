@@ -1,6 +1,26 @@
 
 import { Experience, Project, SkillCategory, EducationItem, Certification } from './types.ts';
 
+/**
+ * Safely resolves asset paths.
+ * In production (Vite), it prepends the BASE_URL.
+ * In development/no-build environments, it handles relative paths gracefully.
+ */
+const getAssetUrl = (path: string) => {
+  if (path.startsWith('http')) return path;
+  
+  // Vite injects import.meta.env.BASE_URL during build. 
+  // We default to './' to keep it relative if BASE_URL isn't set.
+  const baseUrl = (import.meta as any).env?.BASE_URL || './';
+  
+  // Clean up leading dot-slash from path to prevent doubles like ././assets
+  const cleanPath = path.replace(/^\.\//, '');
+  
+  // Combine base and path, ensuring we don't have double slashes
+  const separator = baseUrl.endsWith('/') ? '' : '/';
+  return `${baseUrl}${separator}${cleanPath}`;
+};
+
 export const EXPERIENCES: Experience[] = [
   {
     company: "Sia",
@@ -97,21 +117,21 @@ export const EDUCATION: EducationItem[] = [
     degree: "Master of Business Administration (MBA) - Global", 
     school: "UWA & IIM-Kozhikode", 
     period: "2025 – Present",
-    logo: "./assets/education/mba_logo.jpg",
+    logo: getAssetUrl('./assets/education/mba_logo.jpg'),
     link: "https://www.iimk.ac.in/"
   },
   { 
     degree: "Global Certificate in Data Science", 
     school: "Accredian", 
     period: "2020 – 2021",
-    logo: "./assets/education/ds_logo.png",
+    logo: getAssetUrl('./assets/education/ds_logo.png'),
     link: "https://accredian.com/"
   },
   { 
     degree: "Bachelor of Science (Computer Science)", 
     school: "Thakur College (University of Mumbai)", 
     period: "2017 – 2020",
-    logo: "./assets/education/bsc_logo.png",
+    logo: getAssetUrl('./assets/education/bsc_logo.png'),
     link: "https://www.tcsc.edu.in/"
   }
 ];
