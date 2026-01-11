@@ -2,21 +2,33 @@
 import { Experience, Project, SkillCategory, EducationItem, Certification } from './types.ts';
 
 /**
- * Safely resolves asset paths.
- * In production (Vite), it prepends the BASE_URL.
- * In development/no-build environments, it handles relative paths gracefully.
+ * Resolves asset paths safely.
+ * Handles Vite environment variables defensively and falls back to 
+ * location sniffing for GitHub Pages if the build environment is missing.
  */
 const getAssetUrl = (path: string) => {
   if (path.startsWith('http')) return path;
   
-  // Vite injects import.meta.env.BASE_URL during build. 
-  // We default to './' to keep it relative if BASE_URL isn't set.
-  const baseUrl = (import.meta as any).env?.BASE_URL || './';
+  const cleanPath = path.replace(/^(\.\/|\/)/, '');
+  let baseUrl = '/';
+
+  try {
+    // Safely check for Vite's BASE_URL
+    // @ts-ignore
+    if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.BASE_URL) {
+      // @ts-ignore
+      baseUrl = import.meta.env.BASE_URL;
+    } else {
+      // Fallback: Check if we are on GitHub Pages subfolder
+      if (window.location.pathname.includes('Easha-Fernandes-Portfolio')) {
+        baseUrl = '/Easha-Fernandes-Portfolio/';
+      }
+    }
+  } catch (e) {
+    // Minimal fallback if everything else fails
+    baseUrl = '/';
+  }
   
-  // Clean up leading dot-slash from path to prevent doubles like ././assets
-  const cleanPath = path.replace(/^\.\//, '');
-  
-  // Combine base and path, ensuring we don't have double slashes
   const separator = baseUrl.endsWith('/') ? '' : '/';
   return `${baseUrl}${separator}${cleanPath}`;
 };
@@ -117,21 +129,21 @@ export const EDUCATION: EducationItem[] = [
     degree: "Master of Business Administration (MBA) - Global", 
     school: "UWA & IIM-Kozhikode", 
     period: "2025 – Present",
-    logo: getAssetUrl('./assets/education/mba_logo.jpg'),
+    logo: getAssetUrl('assets/education/mba_logo.jpg'),
     link: "https://www.iimk.ac.in/"
   },
   { 
     degree: "Global Certificate in Data Science", 
     school: "Accredian", 
     period: "2020 – 2021",
-    logo: getAssetUrl('./assets/education/ds_logo.png'),
+    logo: getAssetUrl('assets/education/ds_logo.png'),
     link: "https://accredian.com/"
   },
   { 
     degree: "Bachelor of Science (Computer Science)", 
     school: "Thakur College (University of Mumbai)", 
     period: "2017 – 2020",
-    logo: getAssetUrl('./assets/education/bsc_logo.png'),
+    logo: getAssetUrl('assets/education/bsc_logo.png'),
     link: "https://www.tcsc.edu.in/"
   }
 ];
