@@ -2,6 +2,7 @@
 export interface Experience {
   company: string;
   period: string; // The overall period at the company
+  location: string;
   description: string[];
   skills: string[];
   roleHistory: {

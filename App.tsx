@@ -231,6 +231,10 @@ const TimelineItem: React.FC<{ exp: Experience }> = ({ exp }) => {
             <h3 className="text-4xl md:text-5xl font-black text-white tracking-tighter leading-none mb-2">
               {exp.company}
             </h3>
+            <div className="flex items-center gap-2 text-slate-500 font-mono text-10px] uppercase tracking-[0.2em] mt-3">
+              <i className="fa-solid fa-location-dot text-purple-500/40"></i>
+              {exp.location}
+            </div>
           </div>
         </div>
 
@@ -299,13 +303,13 @@ const TimelineItem: React.FC<{ exp: Experience }> = ({ exp }) => {
           {/* IMPACT LOGS (Right Side) */}
           <div className="flex-grow pt-4">
             <div className="mb-10">
-              <h4 className="font-mono text-[9px] text-slate-600 tracking-[0.4em] uppercase mb-6 flex items-center gap-4">
+              <h4 className="font-mono text-[12px] text-slate-600 tracking-[0.4em] uppercase mb-6 flex items-center gap-4">
                 <span className="w-8 h-[1px] bg-slate-800"></span> Contributions
               </h4>
               <div className="space-y-8">
                 {exp.description.map((d, i) => (
                   <div key={i} className="flex gap-6 group/impact">
-                    <span className="text-slate-800 font-mono text-[10px] mt-1.5 shrink-0 group-hover/impact:text-purple-500/50 transition-colors">[{i+1}]</span>
+                    <span className="text-slate-800 font-mono text-[12px] mt-1.5 shrink-0 group-hover/impact:text-purple-500/50 transition-colors">[{i+1}]</span>
                     <p className="text-slate-400 text-base md:text-lg leading-relaxed font-light">{d}</p>
                   </div>
                 ))}

@@ -36,6 +36,7 @@ const getAssetUrl = (path: string) => {
 export const EXPERIENCES: Experience[] = [
   {
     company: "Sia",
+    location: "Mumbai, India",
     roleHistory: [
       { role: "Software Engineer", period: "June 2025 - Present" }
     ],
@@ -49,6 +50,7 @@ export const EXPERIENCES: Experience[] = [
   },
   {
     company: "Servify",
+    location: "Mumbai, India",
     roleHistory: [
       { role: "Software Engineer (Generative AI)", period: "March 2025 - June 2025" }
     ],
@@ -63,6 +65,7 @@ export const EXPERIENCES: Experience[] = [
   },
   {
     company: "Credence Analytics",
+    location: "Mumbai, India",
     roleHistory: [
       { role: "Intern", period: "Feb 2022 - Sept 2022" },
       { role: "Trainee Assistant Consultant (Software)", period: "Oct 2022 - Apr 2024" },
