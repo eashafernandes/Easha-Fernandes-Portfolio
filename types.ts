@@ -1,10 +1,13 @@
 
 export interface Experience {
   company: string;
-  role: string;
-  period: string;
+  period: string; // The overall period at the company
   description: string[];
   skills: string[];
+  roleHistory: {
+    role: string;
+    period: string;
+  }[]; // The primary source for role details and progression
 }
 
 export interface Project {

@@ -36,10 +36,12 @@ const getAssetUrl = (path: string) => {
 export const EXPERIENCES: Experience[] = [
   {
     company: "Sia",
-    role: "Software Engineer",
-    period: "June 2025 – Present",
+    roleHistory: [
+      { role: "Software Engineer", period: "June 2025 - Present" }
+    ],
+    period: "June 2025 - Present",
     description: [
-      "Contributing to technical initiatives at Sia’s newly established AI Development Hub in Mumbai.",
+      "Contributing to technical initiatives at Sia's newly established AI Development Hub in Mumbai.",
       "Developing and scaling AI-powered services using Python for production-grade generative applications.",
       "Designing backend architectures that support high-throughput, low-latency AI services at scale."
     ],
@@ -47,8 +49,10 @@ export const EXPERIENCES: Experience[] = [
   },
   {
     company: "Servify",
-    role: "Software Engineer – Generative AI",
-    period: "March 2025 – June 2025",
+    roleHistory: [
+      { role: "Software Engineer (Generative AI)", period: "March 2025 - June 2025" }
+    ],
+    period: "March 2025 - June 2025",
     description: [
       "Researched and developed Generative AI solutions to automate internal workflows and enhance day-to-day business operations.",
       "Built and evaluated Agentic RAG systems using Large Language Models to transform UI-driven customer support into LLM-powered experiences.",
@@ -59,8 +63,12 @@ export const EXPERIENCES: Experience[] = [
   },
   {
     company: "Credence Analytics",
-    role: "Assistant Consultant – Software Engineer",
-    period: "Feb 2022 – Nov 2024",
+    roleHistory: [
+      { role: "Intern", period: "Feb 2022 - Sept 2022" },
+      { role: "Trainee Assistant Consultant (Software)", period: "Oct 2022 - Apr 2024" },
+      { role: "Assistant Consultant (Software)", period: "May 2024 - Nov 2024" }
+    ],
+    period: "Feb 2022 - Nov 2024",
     description: [
       "Led backend feature development for a fintech platform serving NBFCs, improving security, performance, and readiness.",
       "Provided end-to-end production support (L1–L4), resolving critical issues and ensuring high system reliability across client deployments.",
@@ -128,21 +136,21 @@ export const EDUCATION: EducationItem[] = [
   { 
     degree: "Master of Business Administration (MBA) - Global", 
     school: "UWA & IIM-Kozhikode", 
-    period: "2025 – Present",
+    period: "2025 - Present",
     logo: getAssetUrl('assets/education/mba_logo.jpg'),
     link: "https://www.iimk.ac.in/"
   },
   { 
     degree: "Global Certificate in Data Science", 
     school: "Accredian", 
-    period: "2020 – 2021",
+    period: "2020 - 2021",
     logo: getAssetUrl('assets/education/ds_logo.png'),
     link: "https://accredian.com/"
   },
   { 
     degree: "Bachelor of Science (Computer Science)", 
     school: "Thakur College (University of Mumbai)", 
-    period: "2017 – 2020",
+    period: "2017 - 2020",
     logo: getAssetUrl('assets/education/bsc_logo.png'),
     link: "https://www.tcsc.edu.in/"
   }

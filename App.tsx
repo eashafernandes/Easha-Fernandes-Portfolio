@@ -1,8 +1,55 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { EXPERIENCES, PROJECTS, SKILL_CATEGORIES, CERTIFICATIONS, EDUCATION } from './data.ts';
 import { Experience, Project, SkillCategory, Certification, EducationItem } from './types.ts';
+
+/**
+ * Robust Tenure Calculation
+ * Handles various dash types and ensures the "Years + Months" format.
+ */
+const calculateTenure = (period: string) => {
+  if (!period || typeof period !== 'string') return "";
+  
+  // Split by any dash type: hyphen (-), en-dash (–), or em-dash (—)
+  const parts = period.split(/\s*[\u2013\u2014-]\s*/);
+  if (parts.length < 1) return "";
+
+  const startStr = parts[0]?.trim();
+  const endStr = parts[1]?.trim() || 'Present';
+
+  const parseDate = (str: string) => {
+    if (!str) return new Date();
+    if (str.toLowerCase() === 'present') return new Date();
+    
+    const dateParts = str.split(/\s+/);
+    if (dateParts.length === 2) {
+      // Format: "Month Year"
+      return new Date(`${dateParts[0]} 1, ${dateParts[1]}`);
+    } else if (dateParts.length === 1) {
+      // Format: "Year"
+      return new Date(`January 1, ${dateParts[0]}`);
+    }
+    return new Date();
+  };
+
+  const start = parseDate(startStr);
+  const end = parseDate(endStr);
+  
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) return "";
+
+  let months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+  // Inclusive of the starting month
+  months = Math.max(1, months + 1);
+  
+  const years = Math.floor(months / 12);
+  const remainingMonths = months % 12;
+
+  const yPart = years > 0 ? `${years}Y` : "";
+  const mPart = remainingMonths > 0 ? `${remainingMonths}M` : (years === 0 ? "1M" : "");
+  
+  return `${yPart} ${mPart}`.trim();
+};
 
 // Navbar Component
 const Navbar = () => {
@@ -126,37 +173,158 @@ const CertificationCard: React.FC<{ cert: Certification }> = ({ cert }) => (
   </div>
 );
 
-const TimelineItem: React.FC<{ exp: Experience }> = ({ exp }) => (
-  <div className="relative pl-12 pb-16 last:pb-0 group">
-    <div className="absolute left-[7px] top-0 bottom-0 w-[2px] bg-slate-800 group-last:bg-transparent transition-colors group-hover:bg-purple-900/50"></div>
-    <div className="absolute left-0 top-2 w-4 h-4 rounded-full bg-slate-900 border-2 border-slate-700 group-hover:border-purple-500 group-hover:bg-purple-500 z-10 transition-all shadow-[0_0_15px_rgba(168,85,247,0)] group-hover:shadow-[0_0_15px_rgba(168,85,247,0.5)]"></div>
-    
-    <div className="flex flex-col lg:flex-row gap-8">
-      <div className="lg:w-1/3">
-        <span className="text-purple-500 font-mono text-xs font-bold tracking-[0.2em] uppercase">{exp.period}</span>
-        <h3 className="text-2xl font-black text-white mt-2 leading-tight">{exp.company}</h3>
-        <p className="text-slate-500 text-sm font-semibold mt-1 uppercase tracking-widest italic">{exp.role}</p>
-      </div>
-      <div className="lg:w-2/3">
-        <ul className="space-y-4">
-          {exp.description.map((d, i) => (
-            <li key={i} className="text-slate-400 text-base leading-relaxed flex items-start gap-4">
-              <span className="text-purple-600 font-black mt-1.5 text-xs shrink-0 opacity-50">0{i+1}</span>
-              <span className="flex-1">{d}</span>
-            </li>
-          ))}
-        </ul>
-        <div className="mt-8 flex flex-wrap gap-2">
-          {exp.skills.map(s => (
-            <span key={s} className="px-3 py-1 rounded-lg bg-slate-900 text-slate-400 text-[10px] font-bold uppercase tracking-wider border border-slate-800 group-hover:border-purple-900/50 transition-colors">
-              {s}
-            </span>
-          ))}
+const TimelineItem: React.FC<{ exp: Experience }> = ({ exp }) => {
+  const timeline = exp.roleHistory || [];
+  const [activeIndex, setActiveIndex] = useState(timeline.length - 1);
+  const currentView = timeline[activeIndex];
+  const wheelRef = useRef<HTMLDivElement>(null);
+  
+  const totalTenureString = useMemo(() => {
+    if (!timeline.length) return "";
+    const startPeriod = timeline[0].period.split(/\s*[\u2013\u2014-]\s*/)[0]?.trim() || "";
+    const lastPeriodStr = timeline[timeline.length - 1].period;
+    const endPeriod = lastPeriodStr.split(/\s*[\u2013\u2014-]\s*/)[1]?.trim() || 'Present';
+    return calculateTenure(`${startPeriod} – ${endPeriod}`);
+  }, [timeline]);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!wheelRef.current || timeline.length <= 1) return;
+    const rect = wheelRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    let angle = Math.atan2(y, x) * (180 / Math.PI);
+    angle = (angle + 90 + 360) % 360;
+    const segmentSize = 360 / timeline.length;
+    const index = Math.floor(angle / segmentSize);
+    if (index >= 0 && index < timeline.length && index !== activeIndex) {
+      setActiveIndex(index);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setActiveIndex(timeline.length - 1);
+  };
+
+  const isInteractive = timeline.length > 1;
+
+  return (
+    <div className="relative pl-12 pb-32 last:pb-12 group">
+      {/* Timeline Line */}
+      <div className="absolute left-[7px] top-0 bottom-0 w-[2px] bg-slate-800 group-last:bg-transparent"></div>
+      
+      {/* Timeline Point */}
+      <div className="absolute left-0 top-3 w-4 h-4 rounded-full z-10 bg-purple-500 border-2 border-purple-500 shadow-[0_0_12px_rgba(168,85,247,0.6)]"></div>
+      
+      <div className="flex flex-col gap-10">
+        {/* TOP HEADER: Total Tenure Only */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-900 pb-8">
+          <div>
+            <div className="flex items-center gap-4 mb-3">
+              <span className="font-mono text-[14px] font-bold tracking-[0.4em] text-purple-400 uppercase">
+                PERIOD: {totalTenureString || "STINT"}
+              </span>
+              <span className="w-12 h-[1px] bg-slate-800"></span>
+              <span className="font-mono text-[14px] font-bold tracking-[0.4em] text-purple-400 uppercase">
+                {exp.period}
+              </span>
+            </div>
+            <h3 className="text-4xl md:text-5xl font-black text-white tracking-tighter leading-none mb-2">
+              {exp.company}
+            </h3>
+          </div>
+        </div>
+
+        {/* INTERACTIVE WORKSPACE */}
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 items-center lg:items-start">
+          
+          {/* THE COMMAND DIAL (Slightly Smaller) */}
+          <div className="relative shrink-0 pt-4 flex flex-col items-center">
+            <div 
+              ref={wheelRef}
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+              className={`relative w-64 h-64 md:w-72 md:h-72 rounded-full border transition-all duration-700 flex items-center justify-center ${isInteractive ? 'cursor-none border-purple-500/20 hover:border-purple-500/40 hover:shadow-[0_0_60px_rgba(168,85,247,0.1)]' : 'border-slate-800/50'}`}
+            >
+              {/* Spinning Decorative Ring */}
+              <div className="absolute inset-0 rounded-full border border-dashed border-purple-500/5 animate-[spin_40s_linear_infinite]"></div>
+              
+              {/* History Progress Track */}
+              {isInteractive && (
+                <div 
+                  className="absolute inset-1 rounded-full border-t-2 border-purple-500/60 transition-transform duration-300 ease-out pointer-events-none"
+                  style={{ transform: `rotate(${(activeIndex / timeline.length) * 360}deg)` }}
+                ></div>
+              )}
+
+              {/* Selection Nodes */}
+              {isInteractive && timeline.map((_, i) => (
+                <div 
+                  key={i}
+                  className="absolute w-full h-full pointer-events-none"
+                  style={{ transform: `rotate(${(i / timeline.length) * 360}deg)` }}
+                >
+                  <div className={`absolute -top-1.5 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full transition-all duration-500 ${i === activeIndex ? 'bg-purple-500 scale-125 shadow-[0_0_15px_rgba(168,85,247,0.8)]' : 'bg-slate-800 border border-slate-700'}`}></div>
+                </div>
+              ))}
+
+              {/* CENTRAL HUB: Title Inside Wheel (Smaller font) */}
+              <div className="w-[84%] h-[84%] rounded-full bg-slate-950/90 backdrop-blur-xl border border-slate-800/40 flex flex-col items-center justify-center p-8 text-center relative overflow-hidden group/hub">
+                {/* HUD Metadata */}
+                {/* <div className="absolute top-6 left-1/2 -translate-x-1/2 font-mono text-[8px] text-slate-600 tracking-[0.3em] uppercase whitespace-nowrap">
+                   {isInteractive ? `NODE 0${activeIndex + 1}` : 'ACTIVE MODULE'}
+                </div> */}
+                
+                <div className="relative z-10 w-full">
+                  <p key={activeIndex} className="font-mono italic uppercase text-white text-base md:text-lg leading-tight tracking-wide animate-in fade-in zoom-in-95 duration-500">
+                    {currentView.role}
+                  </p>
+                  <div className="h-[1px] w-8 bg-purple-500/20 mx-auto mt-4"></div>
+                  <p className="font-mono text-[10px] text-purple-400/70 mt-3 tracking-widest uppercase">
+                    {currentView.period}
+                  </p>
+                </div>
+
+                {/* Grid FX */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#6d28d9 0.5px, transparent 0.5px)', backgroundSize: '15px 15px' }}></div>
+              </div>
+            </div>
+            
+            {/* {isInteractive && (
+              <div className="mt-4 font-mono text-[8px] text-slate-600 uppercase tracking-[0.4em] opacity-40 animate-pulse">
+                View Dial for History
+              </div>
+            )} */}
+          </div>
+
+          {/* IMPACT LOGS (Right Side) */}
+          <div className="flex-grow pt-4">
+            <div className="mb-10">
+              <h4 className="font-mono text-[9px] text-slate-600 tracking-[0.4em] uppercase mb-6 flex items-center gap-4">
+                <span className="w-8 h-[1px] bg-slate-800"></span> Contribution Manifest
+              </h4>
+              <div className="space-y-8">
+                {exp.description.map((d, i) => (
+                  <div key={i} className="flex gap-6 group/impact">
+                    <span className="text-slate-800 font-mono text-[10px] mt-1.5 shrink-0 group-hover/impact:text-purple-500/50 transition-colors">[{i+1}]</span>
+                    <p className="text-slate-400 text-base md:text-lg leading-relaxed font-light">{d}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap gap-2.5">
+              {exp.skills.map(s => (
+                <span key={s} className="px-3 py-1.5 rounded-lg bg-slate-900/40 text-slate-500 text-[9px] font-bold uppercase tracking-[0.2em] border border-slate-800/50 hover:border-purple-500/20 hover:text-slate-300 transition-all">
+                  {s}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const ProjectCard: React.FC<{ project: Project }> = ({ project }) => (
   <div className="group rounded-[2.5rem] p-1 bg-gradient-to-br from-slate-800 to-slate-900 hover:from-purple-500/20 hover:to-indigo-500/20 transition-all h-full shadow-2xl">
