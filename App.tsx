@@ -300,7 +300,7 @@ const TimelineItem: React.FC<{ exp: Experience }> = ({ exp }) => {
           <div className="flex-grow pt-4">
             <div className="mb-10">
               <h4 className="font-mono text-[9px] text-slate-600 tracking-[0.4em] uppercase mb-6 flex items-center gap-4">
-                <span className="w-8 h-[1px] bg-slate-800"></span> Contribution Manifest
+                <span className="w-8 h-[1px] bg-slate-800"></span> Contributions
               </h4>
               <div className="space-y-8">
                 {exp.description.map((d, i) => (
