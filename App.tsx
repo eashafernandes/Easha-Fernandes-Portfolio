@@ -355,6 +355,29 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => (
 );
 
 const Home = () => {
+  const yearsOfExperience = useMemo(() => {
+    if (!EXPERIENCES || EXPERIENCES.length === 0) return 3;
+    
+    const startDates = EXPERIENCES.map(exp => {
+      const startStr = exp.period.split(/\s*[\u2013\u2014-]\s*/)[0]?.trim();
+      if (!startStr) return new Date();
+      const dateParts = startStr.split(/\s+/);
+      if (dateParts.length === 2) {
+        return new Date(`${dateParts[0]} 1, ${dateParts[1]}`);
+      } else if (dateParts.length === 1) {
+        return new Date(`January 1, ${dateParts[0]}`);
+      }
+      return new Date();
+    });
+    
+    const validDates = startDates.filter(d => !isNaN(d.getTime()));
+    if (validDates.length === 0) return 3;
+    
+    const earliestDate = new Date(Math.min(...validDates.map(d => d.getTime())));
+    const now = new Date();
+    const diffMonths = (now.getFullYear() - earliestDate.getFullYear()) * 12 + (now.getMonth() - earliestDate.getMonth());
+    return Math.max(0, Math.floor(diffMonths / 12));
+  }, []);
   return (
     <div className="relative">
       <Hero />
@@ -377,7 +400,7 @@ const Home = () => {
           <div className="max-w-4xl">
             <div className="space-y-6 text-slate-400 leading-relaxed text-xl font-light">
               <p>
-                I'm a <span className="text-white font-bold italic">Software Engineer</span> with 3+ years of experience building scalable backend systems in Python and Node.js, and more recently, designing AI-powered workflows that turn complex processes into intelligent, LLM-driven experiences.
+                I'm a <span className="text-white font-bold italic">Software Engineer</span> with {yearsOfExperience} years of experience building scalable backend systems in Python and Node.js, and more recently, designing AI-powered workflows that turn complex processes into intelligent, LLM-driven experiences.
               </p>
               <p>
                 Currently at <span className="text-white font-bold italic">Sia</span>, I'm pioneering production-grade AI services, building tools that make everyday work faster, smarter, and less repetitive.
