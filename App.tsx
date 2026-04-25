@@ -440,7 +440,7 @@ const Home = () => {
                 I'm a <span className="text-white font-bold italic">Software Engineer</span> with {experienceString} of engineering experience{internshipString} building scalable backend systems in Python and Node.js, and more recently, designing AI-powered workflows that turn complex processes into intelligent, LLM-driven experiences.
               </p>
               <p>
-                Currently at <span className="text-white font-bold italic">Sia</span>, I'm pioneering production-grade AI services, building tools that make everyday work faster, smarter, and less repetitive.
+                Currently at <span className="text-white font-bold italic">Sia</span>, I'm pioneering production-grade systems that are powered by AI, building tools that make everyday work faster, smarter, and less repetitive.
               </p>
               <p>
                 Somewhere between distributed systems and large language models, I've developed a habit of waking up with solutions to whatever I'm building — and then turning them into working code.
